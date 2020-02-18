@@ -195,8 +195,12 @@ module Sidekiq
         end
 
         # if complete or successfull call complete callback (the complete callback may then call successful)
-        if (pending.to_i == failed.to_i && children == complete) || (pending.to_i.zero? && children == success)
+        all_success = pending.to_i.zero? && children == success
+        if (pending.to_i == failed.to_i && children == complete) || all_success
           enqueue_callbacks(:complete, bid)
+          if all_success
+            enqueue_callbacks(:success, bid)
+          end
         end
       end
 
